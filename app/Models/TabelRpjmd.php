@@ -46,7 +46,7 @@ class TabelRpjmd extends Model
         return $this->hasMany(FiturRpjmd::class, 'tabel_rpjmd_id');
     }
 
-    public function uraianRpjmd()
+    public function uraianRpmd()
     {
         return $this->hasMany(UraianRpjmd::class, 'tabel_rpjmd_id');
     }
