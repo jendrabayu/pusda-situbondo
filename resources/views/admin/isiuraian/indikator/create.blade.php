@@ -29,6 +29,7 @@
               <li class="nav-item">
                 <a class="nav-link" id="fitur-tab" data-toggle="tab" href="#fitur" role="tab" aria-controls="fitur"
                   aria-selected="false">Fitur Indikator</a>
+                  <p>{{ Route::currentRouteName() }}</p>
               </li>
               <li class="nav-item">
                 <a class="nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file"
@@ -39,6 +40,10 @@
 
               <div class="tab-pane fade show active" id="table" role="tabpanel" aria-labelledby="table-tab">
                 <div class="d-flex justify-content-end align-items-center">
+                  <button class="btn btn-success btn-icon icon-left mr-2" type="button" data-toggle="modal"
+                    data-target="#modalTahun">
+                    <i class="fas fa-calendar-alt"></i> Pengaturan Tahun
+                  </button>
                   @include('admin.isiuraian.partials.button-export', ['resource_name' => 'indikator', 'table_id' =>
                   $tabelIndikator->id])
                 </div>
@@ -78,6 +83,7 @@
                           <tr>
                             <td></td>
                             <td><span class="text-danger d-block" style="text-indent: 1rem;">{{ $child->uraian }}</span>
+                            </td>
                             <td>{{ $child->satuan }}</td>
                             @foreach ($years as $y)
                               <th class="text-center">
@@ -180,22 +186,93 @@
         </div>
       </div>
     </div>
-  </section>
   @include('admin.isiuraian.partials.hidden-form')
+  <form action="" method="post" id="deleteYearForm" hidden>
+    @csrf
+    @method('DELETE')
+  </form>
+</section>
+
 @endsection
+@push('styles')
+  @include('admin.isiuraian.partials.styles')
+@endpush
 
 @section('outer')
   @include('admin.isiuraian.partials.modal-graphic')
   @include('admin.isiuraian.partials.modal-edit', ['action' => route('admin.indikator.update') ])
-  @include('admin.isiuraian.partials.modal-upload-file', ['action' => route('admin.indikator.files.store',
-  $tabelIndikator->id) ])
+  @include('admin.isiuraian.partials.modal-upload-file', ['action' => route('admin.indikator.files.store', $tabelIndikator->id) ])
+  @include('admin.isiuraian.partials.modal-year', ['action' => route('admin.bps.destroy_tahun', [$tabelIndikator->id, $years])])
 @endsection
+
 
 @push('scripts')
   @include('admin.isiuraian.partials.scripts')
   <script>
     $(function() {
       initIsiUraianPage('indikator');
+      $('#tahun').select2();
+
+      $('#formTambahTahun').on('submit', function(e) {
+        e.preventDefault();
+
+        $('#modalTahun').modal('hide')
+        Swal.fire({
+          title: 'Mohon tunggu sebentar...',
+          didOpen: () => {
+            Swal.showLoading()
+            $.ajax({
+              url: $('#formTambahTahun').attr('action'),
+              type: 'post',
+              dataType: 'json',
+              data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                tahun: $('select#tahun').val()
+              },
+              success: function(data) {
+                if (data.success) {
+                  Swal.fire({
+                    title: data.message,
+                    icon: 'success',
+                    timer: 1000
+                  })
+                  window.location.reload();
+                }
+              },
+              error: function(error) {
+                Swal.fire({
+                  title: 'Gagal menambahkan tahun',
+                  text: error.responseJSON.message || error.statusText,
+                  icon: 'error',
+                  showConfirmButton: true,
+                })
+              }
+            });
+          },
+          allowOutsideClick: () => !Swal.isLoading()
+        })
+      });
+
+      $('.hapus-tahun').on('click', function(e) {
+        const url = $(this).data('url');
+        const form = $('#deleteYearForm');
+        form.prop('action', url);
+        console.log(url);
+        Swal.fire({
+          title: 'Apakah Anda Yakin?',
+          text: 'Semua isi uraian pada tahun tersebut juga akan dihapus!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          cancelButtonText: 'Batal',
+          confirmButtonText: 'Hapus'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        })
+      });
     });
   </script>
 @endpush
