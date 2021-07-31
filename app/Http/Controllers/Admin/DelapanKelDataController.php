@@ -127,7 +127,6 @@ class DelapanKelDataController extends Controller
         }
 
         event(new UserLogged($request->user(), 'Mengubah isi uraian tabel 8 kelompok data'));
-
         return back()->with('alert-success', 'Isi uraian berhasil diupdate');
     }
 

@@ -22,11 +22,10 @@ class IsiIndikator extends Model
         return $this->belongsTo(UraianIndikator::class, 'uraian_indikator_id');
     }
 
-    public static function getYears($limit = 5)
+    public static function getYears()
     {
         $years = self::orderByDesc('tahun')
             ->groupBy('tahun')
-            ->take($limit)
             ->get('tahun')
             ->sortBy('tahun');
 

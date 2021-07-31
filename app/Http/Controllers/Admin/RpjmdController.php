@@ -50,7 +50,6 @@ class RpjmdController extends Controller
         $isiRpjmd = $uraianRpjmd->isiRpjmd()
             ->orderByDesc('tahun')
             ->groupBy('tahun')
-            ->take(5)
             ->get(['tahun', 'isi']);
 
         $response = [
@@ -67,43 +66,47 @@ class RpjmdController extends Controller
 
     public function update(Request $request)
     {
-        $request->validate([
+        $uraianRpjmd = UraianRpjmd::findOrFail($request->uraian_id);
+
+        $years = $uraianRpjmd->isiRpjmd()
+        ->select('tahun')
+        ->get()
+        ->map(fn ($year) => $year->tahun);
+
+        $rules = [
             'uraian' => ['required', 'string'],
             'satuan' => ['required', 'string'],
             'ketersediaan_data' => ['required', 'integer'],
-            't1' => ['required', 'numeric'],
-            't2' => ['required', 'numeric'],
-            't3' => ['required', 'numeric'],
-            't4' => ['required', 'numeric'],
-            't5' => ['required', 'numeric'],
+        ];
+
+        $customMessages = [];
+
+        foreach ($years as $year) {
+            $key = 'tahun_' . $year;
+            $rules[$key] = ['required', 'numeric'];
+            $customMessages[$key . '.required'] = "Data tahun {$year} wajib diisi";
+            $customMessages[$key . '.numeric'] = "Data tahun {$year} harus berupa angka";
+        }
+
+        $this->validate($request, $rules, $customMessages);
+
+        $uraianRpjmd->update([
+            'uraian' => $request->uraian,
+            'satuan' =>  $request->satuan,
+            'ketersediaan_data' => $request->ketersediaan_data
         ]);
 
-        $uraianRpjmd = UraianRpjmd::findOrFail($request->uraian_id);
-        $uraianRpjmd->uraian = $request->uraian;
-        $uraianRpjmd->satuan = $request->satuan;
-        $uraianRpjmd->ketersediaan_data = $request->ketersediaan_data;
-        $uraianRpjmd->save();
+        $isiRpjmd = IsiRpjmd::where('uraian_8keldata_id', $request->uraian_id)
+            ->get()
+            ->sortBy('tahun');
 
-        $isiRpjmd = IsiRpjmd::where('uraian_rpjmd_id', $request->uraian_id)->take(5)->get()->sortBy('tahun');
-
-        $n = 1;
         foreach ($isiRpjmd as $value) {
-            $push = IsiRpjmd::findOrFail($value->id);
-            if ($n == 1) {
-                $push->isi = $request->t1;
-            } else if ($n == 2) {
-                $push->isi = $request->t2;
-            } else if ($n == 3) {
-                $push->isi = $request->t3;
-            } else if ($n == 4) {
-                $push->isi = $request->t4;
-            } else {
-                $push->isi = $request->t5;
-            }
-            $push->save();
-            $n++;
+            $isi = IsiRpjmd::find($value->id);
+            $isi->isi = $request->get('tahun_' . $isi->tahun);
+            $isi->save();
         }
-        event(new UserLogged($request->user(), "Mengubah uraian  <i>{$uraianRpjmd->uraian}</i>  RPJMD"));
+
+        event(new UserLogged($request->user(), 'Mengubah isi uraian tabel RPJMD'));
         return back()->with('alert-success', 'Isi uraian berhasil diupdate');
     }
 
@@ -169,5 +172,44 @@ class RpjmdController extends Controller
         $uraianRpjmd->save();
         event(new UserLogged($request->user(), "Merubah sumber data pada uraian  <i>{$uraianRpjmd->uraian}</i>  RPJMD"));
         return back()->with('alert-success', 'Sumber data isi uraian berhasil diupdate');
+    }
+
+    public function storeTahun(Request $request, TabelRpjmd $tabelRpjmd)
+    {
+        abort_if(!$request->ajax(), 404);
+
+        $request->validate(['tahun' => ['required', 'array']]);
+
+        $tabelRpjmd->uraianRpmd()->each(function ($uraian) use ($request) {
+            foreach ($request->tahun as $tahun) {
+                if (!is_null($uraian->parent_id)) {
+                    $isiRpjmd = IsiRpjmd::where('uraian_rpjmd_id', $uraian->id)->where('tahun', $tahun)->first();
+                    if (is_null($isiRpjmd)) {
+                        IsiRpjmd::create([
+                            'uraian_rpjmd_id' => $uraian->id,
+                            'tahun' => $tahun,
+                            'isi' => 0
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil menambahkan tahun'
+        ], 201);
+    }
+
+    public function destroyTahun(Request $request, TabelRpjmd $tabelRpjmd, $year)
+    {
+        $uraianRpjmd = $tabelRpjmd->uraianRpjmd;
+        $uraianRpjmd->each(function ($uraian) use ($year) {
+            $uraian->isiRpjmd()->where('tahun', $year)->delete();
+        });
+
+        event(new UserLogged($request->user(), 'Menghapus tahun tabel RPJMD'));
+
+        return back()->with('alert-success', 'Berhasil menghapus tahun');
     }
 }

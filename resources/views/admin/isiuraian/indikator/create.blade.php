@@ -29,7 +29,6 @@
               <li class="nav-item">
                 <a class="nav-link" id="fitur-tab" data-toggle="tab" href="#fitur" role="tab" aria-controls="fitur"
                   aria-selected="false">Fitur Indikator</a>
-                  <p>{{ Route::currentRouteName() }}</p>
               </li>
               <li class="nav-item">
                 <a class="nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file"

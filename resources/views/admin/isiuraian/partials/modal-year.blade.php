@@ -14,6 +14,10 @@
                 action="{{ route('admin.delapankeldata.store_tahun', $tabel8KelData->id) }}"
             @elseif (Route::currentRouteName() == 'admin.bps.index')
                 action="{{ route('admin.bps.store_tahun', $tabelBps->id) }}"
+            @elseif (Route::currentRouteName() == 'admin.indikator.index')
+                action="{{ route('admin.indikator.store_tahun', $tabelIndikator->id) }}"
+            @elseif (Route::currentRouteName() == 'admin.rpjmd.index')
+                action="{{ route('admin.rpjmd.store_tahun', $tabelRpjmd->id) }}"
             @endif
             method="POST">
             @csrf
@@ -53,8 +57,12 @@
                       <button
                         @if (Route::currentRouteName() == 'admin.delapankeldata.input')
                             data-url="{{ route('admin.delapankeldata.destroy_tahun', [$tabel8KelData->id, $year]) }}"
-                        @elseif (Route::currentRouteName() == 'admin.bps.input')
+                        @elseif (Route::currentRouteName() == 'admin.bps.index')
                             data-url="{{ route('admin.bps.destroy_tahun', [$tabelBps->id, $year]) }}"
+                        @elseif (Route::currentRouteName() == 'admin.indikator.index')
+                            data-url="{{ route('admin.indikator.destroy_tahun', [$tabelIndikator->id, $year]) }}"
+                        @elseif (Route::currentRouteName() == 'admin.rpjmd.index')
+                            data-url="{{ route('admin.rpjmd.destroy_tahun', [$tabelRpjmd->id, $year]) }}"
                         @endif
                         class="btn btn-icon btn-sm btn-danger hapus-tahun m-1">
                         <i class="fas fa-trash-alt"></i>

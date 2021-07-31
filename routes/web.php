@@ -168,6 +168,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/files/{tabelIndikator}', [App\Http\Controllers\Admin\IndikatorController::class, 'storeFile'])->name('files.store');
             Route::delete('/files/{fileIndikator}', [App\Http\Controllers\Admin\IndikatorController::class, 'destroyFile'])->name('files.destroy');
             Route::get('/files/download/{fileIndikator}', [App\Http\Controllers\Admin\IndikatorController::class, 'downloadFile'])->name('files.download');
+            Route::post('/tahun/{tabelIndikator}', [App\Http\Controllers\Admin\IndikatorController::class, 'storeTahun'])->name('store_tahun');
+            Route::delete('/tahun/{tabelIndikator}/{tahun}', [App\Http\Controllers\Admin\IndikatorController::class, 'destroyTahun'])->name('destroy_tahun');
         });
 
         Route::name('bps.')->prefix('bps')->group(function () {
@@ -179,6 +181,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/files/{tabelBps}', [App\Http\Controllers\Admin\BpsController::class, 'storeFile'])->name('files.store');
             Route::delete('/files/{fileBps}', [App\Http\Controllers\Admin\BpsController::class, 'destroyFile'])->name('files.destroy');
             Route::get('/files/download/{fileBps}', [App\Http\Controllers\Admin\BpsController::class, 'downloadFile'])->name('files.download');
+            Route::put('/sumber_data/{uraianBps}', [App\Http\Controllers\Admin\BpsController::class, 'updateSumberData']);
+            Route::post('/tahun/{tabelBps}', [App\Http\Controllers\Admin\BpsController::class, 'storeTahun'])->name('store_tahun');
+            Route::delete('/tahun/{tabelBps}/{tahun}', [App\Http\Controllers\Admin\BpsController::class, 'destroyTahun'])->name('destroy_tahun');
         });
 
         Route::name('rpjmd.')->prefix('rpjmd')->group(function () {
@@ -192,6 +197,8 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/files/{fileRpjmd}', [App\Http\Controllers\Admin\RpjmdController::class, 'destroyFile'])->name('files.destroy');
             Route::get('/files/download/{fileRpjmd}', [App\Http\Controllers\Admin\RpjmdController::class, 'downloadFile'])->name('files.download');
             Route::put('/sumber_data/{uraianRpjmd}', [App\Http\Controllers\Admin\RpjmdController::class, 'updateSumberData']);
+            Route::post('/tahun/{tabelRpjmd}', [App\Http\Controllers\Admin\RpjmdController::class, 'storeTahun'])->name('store_tahun');
+            Route::delete('/tahun/{tabelRpjmd}/{tahun}', [App\Http\Controllers\Admin\RpjmdController::class, 'destroyTahun'])->name('destroy_tahun');
         });
     });
 

@@ -215,11 +215,8 @@
 
 @section('outer')
   @include('admin.isiuraian.partials.modal-graphic')
-  @include('admin.isiuraian.partials.modal-edit', ['action' => route('admin.delapankeldata.update'),
-  'showKetersediaanData' => true ])
-  @include('admin.isiuraian.partials.modal-upload-file', ['action' => route('admin.delapankeldata.files.store',
-  $tabel8KelData->id)
-  ])
+  @include('admin.isiuraian.partials.modal-edit', ['action' => route('admin.delapankeldata.update'), 'showKetersediaanData' => true ])
+  @include('admin.isiuraian.partials.modal-upload-file', ['action' => route('admin.delapankeldata.files.store', $tabel8KelData->id)])
   @include('admin.isiuraian.partials.modal-year', ['action' => route('admin.delapankeldata.destroy_tahun', [$tabel8KelData->id, $years])])
 @endsection
 
@@ -293,4 +290,16 @@
       });
     });
   </script>
+@endpush
+
+
+@section('outer')
+  @include('admin.isiuraian.partials.modal-graphic')
+  @include('admin.isiuraian.partials.modal-edit', ['action' => route('admin.rpjmd.update'), 'showKetersediaanData' =>
+  true])
+  @include('admin.isiuraian.partials.modal-upload-file', ['action' => route('admin.rpjmd.files.store', $tabelRpjmd->id) ])
+@endsection
+
+@push('styles')
+  @include('admin.isiuraian.partials.styles')
 @endpush

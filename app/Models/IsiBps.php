@@ -26,7 +26,7 @@ class IsiBps extends Model
     {
         $years = self::orderByDesc('tahun')
             ->groupBy('tahun')
-            ->take(5)->get('tahun')
+            ->get('tahun')
             ->sortBy('tahun');
         $years = $years->map(fn ($item) => $item->tahun)->values();
         return $years;
